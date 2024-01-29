@@ -39,51 +39,61 @@ func (c *InstallCmd) Run() error {
 	}
 
 	slog.InfoContext(ctx, fmt.Sprintf("curl -L %s -o uberfx-server.tar.gz", downloadUrl))
+
 	if err := r.Run(fmt.Sprintf("curl -L %s -o uberfx-server.tar.gz", downloadUrl)); err != nil {
 		return fmt.Errorf("copying uberfx-server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "supervisorctl stop uberfx-server")
+
 	if err := r.Run("supervisorctl stop uberfx-server"); err != nil {
 		return fmt.Errorf("stop uberfx-server: %w", err)
 	}
 
 	slog.InfoContext(ctx, fmt.Sprintf("tar -xzf uberfx-server.tar.gz -C /home/%s/bin", c.Username))
+
 	if err := r.Run(fmt.Sprintf("tar -xzf uberfx-server.tar.gz -C /home/%s/bin", c.Username)); err != nil {
 		return fmt.Errorf("extracting uberfx-server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "chmod +x uberfx-server")
+
 	if err := r.Run(fmt.Sprintf("chmod +x /home/%s/bin/uberfx-server", c.Username)); err != nil {
 		return fmt.Errorf("chmod +x uberfx-server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "supervisorctl reread")
+
 	if err := r.Run("supervisorctl reread"); err != nil {
 		return fmt.Errorf("rereading supervisorctl: %w", err)
 	}
 
 	slog.InfoContext(ctx, "supervisorctl update")
+
 	if err := r.Run("supervisorctl update"); err != nil {
 		return fmt.Errorf("updating supervisorctl: %w", err)
 	}
 
 	slog.InfoContext(ctx, "supervisorctl start uberfx-server")
+
 	if err := r.Run("supervisorctl start uberfx-server"); err != nil {
 		return fmt.Errorf("restarting uberfx-server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "rm uberfx-server.tar.gz")
+
 	if err := r.Run("rm uberfx-server.tar.gz"); err != nil {
 		return fmt.Errorf("removing uberfx-server.tar.gz: %w", err)
 	}
 
 	slog.InfoContext(ctx, fmt.Sprintf("mkdir -p /home/%s/bin/wasi", c.Username))
+
 	if err := r.Run(fmt.Sprintf("mkdir -p /home/%s/bin/wasi", c.Username)); err != nil {
 		return fmt.Errorf("mkdir -p /home/%s/bin/wasi: %w", c.Username, err)
 	}
 
 	slog.InfoContext(ctx, "create services.d/wasm-server.ini")
+
 	content := fmt.Sprintf(servicesD, c.Username, c.Username)
 	if err := r.Write(ctx, fmt.Sprintf("/home/%s/etc/services.d/wasm-server.ini", c.Username), content); err != nil {
 		return fmt.Errorf("writing services.d: %w", err)

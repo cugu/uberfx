@@ -2,6 +2,5 @@
 *.sqlite3
 
 bin
-example/wasi
 
 docs/public

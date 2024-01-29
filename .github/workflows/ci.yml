@@ -1,27 +1,34 @@
 name: CI
 on:
-  push: { branches: [ main ] }
+  push:
+    branches: [ main ]
+  pull_request:
 
 jobs:
-  build:
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v4
         with: { go-version: '1.21' }
-      - name: Install uberfx
-        run: go install ./cmd/uberfx
 
-      # Build and deploy docs
-      - name: Install templum and build docs
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with: { version: latest }
+
+  fmt:
+    name: Fmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v4
+        with: { go-version: '1.21' }
+
+      - name: Fmt
         run: |
-          go install github.com/cugu/templum/cmd/templum@latest
-          templum --content content --output public --url "https://docs.fx.uber.space/"
-        working-directory: docs
-      # - name: Install uberfx-server
-      #   run: uberfx install --address "tucana.uberspace.de:22" --username fx --password ${{ secrets.UBERFX_PASSWORD }}
-      - name: Deploy docs to uber.space
-        run: uberfx deploy
-        working-directory: docs
-        env:
-          UBERFX_VAR_password: ${{ secrets.UBERFX_PASSWORD }}
+          make fmt
+
+      - name: Check
+        run: |
+          git diff --exit-code

@@ -4,8 +4,10 @@ import (
 	"sync"
 )
 
-var once sync.Once
-var defaultRegistry *Registry
+var (
+	once            sync.Once
+	defaultRegistry *Registry
+)
 
 func init() {
 	once.Do(func() {

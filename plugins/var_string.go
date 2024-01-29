@@ -53,6 +53,7 @@ func NewStringVar(body hcl.Body, ctx *hcl.EvalContext) (deploy.Resource, error) 
 	if v.In.Value != "" {
 		v.Out.Source = "hcl"
 		v.Out.Value = v.In.Value
+
 		return v, nil
 	}
 

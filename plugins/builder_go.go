@@ -37,18 +37,21 @@ func NewGoBuilder(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource, error)
 	ctx := context.Background()
 
 	slog.InfoContext(ctx, "creating build directory")
+
 	buildDir, err := os.MkdirTemp("", "uberfx")
 	if err != nil {
 		return nil, err
 	}
 
 	slog.InfoContext(ctx, "creating cache directory")
+
 	cacheDir, err := os.UserCacheDir()
 	if err != nil {
 		return nil, err
 	}
 
 	slog.InfoContext(ctx, "looking for go")
+
 	goPath, err := exec.LookPath("go")
 	if err != nil {
 		return nil, err
