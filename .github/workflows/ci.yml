@@ -27,6 +27,7 @@ jobs:
 
       - name: Fmt
         run: |
+          make install-dev
           make fmt
 
       - name: Check
