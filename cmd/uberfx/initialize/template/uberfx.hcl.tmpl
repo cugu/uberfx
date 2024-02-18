@@ -6,9 +6,9 @@ var secret password {
 }
 
 service uberspace_mysql mysql {
-  username = "fx"
+  username = "{{ .UberspaceUser }}"
   password = var.secret.password.value
-  address  = "atlas.uberspace.de:22"
+  address  = "{{ .UberspaceServer }}:22"
 }
 
 # A build step, which builds the go binary as a wasm module
@@ -19,10 +19,10 @@ build go www {
 # A deploy step, which deploys the binary to an uberspace
 deploy uberspace www {
   source   = build.go.www.output
-  username = "fx"
+  username = "{{ .UberspaceUser }}"
   password = var.secret.password.value
-  address  = "atlas.uberspace.de:22"
-  domain   = "www.fx.uber.space"
+  address  = "{{ .UberspaceServer }}:22"
+  domain   = "{{ .Domain }}"
   env      = {
     "MYSQL_PASSWORD" = service.uberspace_mysql.mysql.password
   }
