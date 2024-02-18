@@ -3,14 +3,16 @@ package initialize
 import (
 	"errors"
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"regexp"
 	"strings"
 
 	"github.com/charmbracelet/huh"
+	"github.com/charmbracelet/lipgloss"
 )
 
 var (
+	uberfxNameRegex               = regexp.MustCompile(`^[a-zA-Z0-9_-]+$`)
+	goVersionRegex                = regexp.MustCompile(`^1\.[0-9]+\.[0-9]+$`)
 	uberspaceServerSubdomainRegex = regexp.MustCompile(`^[a-z]+$`)
 	uberspaceServerRegex          = regexp.MustCompile(`^[a-z]+\.uberspace\.de$`)
 	uberspaceUsernameRegex        = regexp.MustCompile(`^[a-z][a-z0-9]*$`)
@@ -23,7 +25,7 @@ func interactiveInput(c *Cmd) error {
 		return nil
 	}
 
-	var style = lipgloss.NewStyle().
+	style := lipgloss.NewStyle().
 		Bold(true).
 		Padding(1).
 		MaxWidth(80)
@@ -54,8 +56,8 @@ func nameField(name *string) huh.Field {
 		Placeholder("MyApp").
 		Value(name).
 		Validate(func(s string) error {
-			if s == "" {
-				return errors.New("name cannot be empty")
+			if !uberfxNameRegex.MatchString(s) {
+				return errors.New("invalid project name, only letters, numbers, dashes and underscores are allowed")
 			}
 
 			return nil
@@ -68,8 +70,8 @@ func goVersionField(goVersion *string) huh.Field {
 		Placeholder("1.22.0").
 		Value(goVersion).
 		Validate(func(s string) error {
-			if s == "" {
-				return errors.New("go version cannot be empty")
+			if !goVersionRegex.MatchString(s) {
+				return errors.New("invalid Go version")
 			}
 
 			return nil
