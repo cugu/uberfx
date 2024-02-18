@@ -7,8 +7,9 @@ import (
 )
 
 type Cmd struct {
-	Var    map[string]string `help:"Pass extra variables."`
-	Config string            `help:"Config file." type:"path" default:"uberfx.hcl"`
+	Var        map[string]string `help:"Pass extra variables."`
+	Config     string            `help:"Config file." type:"path" default:"uberfx.hcl"`
+	PrintState bool              `help:"Print state. Caution: This might print sensitive information."`
 }
 
 func (c *Cmd) Run() error {
@@ -30,12 +31,14 @@ func (c *Cmd) Run() error {
 		return err
 	}
 
-	b, err := json.MarshalIndent(d, "", "  ")
-	if err != nil {
-		return err
-	}
+	if c.PrintState {
+		b, err := json.MarshalIndent(d, "", "  ")
+		if err != nil {
+			return err
+		}
 
-	log.Println(string(b))
+		log.Println(string(b))
+	}
 
 	return nil
 }
