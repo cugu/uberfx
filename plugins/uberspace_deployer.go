@@ -32,7 +32,7 @@ type UberspaceDeployer struct {
 	} `json:"input"`
 }
 
-func serviceIni(u *UberspaceDeployer) string {
+func serviceIni(u *UberspaceDeployer, binaryPath string) string {
 	var envs []string
 
 	if len(u.In.Env) > 0 {
@@ -46,9 +46,9 @@ func serviceIni(u *UberspaceDeployer) string {
 		env = "environment=" + strings.Join(envs, ",") + "\n"
 	}
 
-	iniTemplate := "[program:%s]\ncommand=/home/%s/bin/%s :%d\nstartsecs=60\n%s"
+	iniTemplate := "[program:%s]\ncommand=%s :%d\nstartsecs=60\n%s"
 
-	return fmt.Sprintf(iniTemplate, u.In.Domain, u.In.Username, u.In.Domain, u.In.Port, env)
+	return fmt.Sprintf(iniTemplate, u.In.Domain, binaryPath, u.In.Port, env)
 }
 
 func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource, error) {
@@ -87,8 +87,7 @@ func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource
 	}
 
 	slog.InfoContext(ctx, "write services.d ini file")
-	ini := serviceIni(u)
-	if err := r.Write(ctx, iniPath, ini); err != nil {
+	if err := r.Write(ctx, iniPath, serviceIni(u, binaryPath)); err != nil {
 		return nil, fmt.Errorf("writing services.d: %w", err)
 	}
 
