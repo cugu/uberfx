@@ -1,14 +1,10 @@
-//go:build wasip1
-
 package uberfx
 
 import (
 	"log"
+	"net"
 	"net/http"
 	"os"
-
-	_ "github.com/stealthrocket/net/http"
-	"github.com/stealthrocket/net/wasip1"
 )
 
 func Start(handler http.HandlerFunc) {
@@ -18,7 +14,7 @@ func Start(handler http.HandlerFunc) {
 
 	address := os.Args[1]
 
-	listener, err := wasip1.Listen("tcp", address)
+	listener, err := net.Listen("tcp", address)
 	if err != nil {
 		log.Fatal(err)
 	}

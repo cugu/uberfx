@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/gohcl"
@@ -20,7 +21,8 @@ func init() {
 
 type GoBuilder struct {
 	In struct {
-		Path string `json:"path" hcl:"path"`
+		Path string            `json:"path" hcl:"path"`
+		Env  map[string]string `json:"env" hcl:"env,optional"`
 	} `json:"input"`
 
 	Out struct {
@@ -57,18 +59,45 @@ func NewGoBuilder(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource, error)
 		return nil, err
 	}
 
-	w.Out.Path = fmt.Sprintf("%s/main.wasm", buildDir)
+	inPath, err := filepath.Abs(w.In.Path)
+	if err != nil {
+		return nil, err
+	}
+
+	w.Out.Path = fmt.Sprintf("%s/%s", buildDir, filepath.Base(inPath))
+
+	env := []string{
+		fmt.Sprintf("GOCACHE=%s/uberfx/gocache", cacheDir),
+		fmt.Sprintf("GOMODCACHE=%s/uberfx/gomodcache", cacheDir),
+	}
+
+	goosSet, goarchSet := false, false
+
+	for k, v := range w.In.Env {
+		if k == "GOOS" {
+			goosSet = true
+		}
+
+		if k == "GOARCH" {
+			goarchSet = true
+		}
+
+		env = append(env, fmt.Sprintf("%s=%s", k, v))
+	}
+
+	if !goosSet {
+		env = append(env, "GOOS=linux")
+	}
+
+	if !goarchSet {
+		env = append(env, "GOARCH=amd64")
+	}
 
 	slog.InfoContext(ctx, fmt.Sprintf("go build -o %s %s", w.Out.Path, w.In.Path))
 	goCmd := exec.Cmd{
 		Path: goPath,
 		Args: []string{"go", "build", "-o", w.Out.Path, w.In.Path},
-		Env: []string{
-			"GOOS=wasip1",
-			"GOARCH=wasm",
-			fmt.Sprintf("GOCACHE=%s/uberfx/gocache", cacheDir),
-			fmt.Sprintf("GOMODCACHE=%s/uberfx/gomodcache", cacheDir),
-		},
+		Env:  env,
 	}
 
 	out, err := goCmd.CombinedOutput()

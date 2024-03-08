@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/huh"
@@ -38,6 +39,7 @@ func interactiveInput(c *Cmd) error {
 		modulePathField(&c.ModulePath),
 		uberspaceServerField(&c.UberspaceServer),
 		uberspaceUserField(&c.UberspaceUser),
+		uberspacePortField(&c.UberspacePort),
 		domainField(&c.Domain),
 	)).Run(); err != nil {
 		return err
@@ -114,6 +116,25 @@ func uberspaceUserField(user *string) huh.Field {
 		Validate(func(s string) error {
 			if !uberspaceUsernameRegex.MatchString(s) {
 				return errors.New("invalid Uberspace user name")
+			}
+
+			return nil
+		})
+}
+
+func uberspacePortField(i *string) huh.Field {
+	return huh.NewInput().
+		Title("What is your Uberspace port?").
+		Placeholder("8080").
+		Value(i).
+		Validate(func(s string) error {
+			if s == "" {
+				return errors.New("port cannot be empty")
+			}
+
+			_, err := strconv.Atoi(s)
+			if err != nil {
+				return err
 			}
 
 			return nil

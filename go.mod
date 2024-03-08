@@ -6,12 +6,11 @@ require (
 	github.com/alecthomas/kong v0.8.1
 	github.com/bramvdbogaerde/go-scp v1.3.0
 	github.com/charmbracelet/huh v0.3.0
-	github.com/charmbracelet/lipgloss v0.9.1
-	github.com/hashicorp/hcl/v2 v2.19.1
-	github.com/stealthrocket/net v0.2.1
-	github.com/zclconf/go-cty v1.14.2
-	golang.org/x/crypto v0.19.0
-	golang.org/x/term v0.17.0
+	github.com/charmbracelet/lipgloss v0.10.0
+	github.com/hashicorp/hcl/v2 v2.20.0
+	github.com/zclconf/go-cty v1.14.3
+	golang.org/x/crypto v0.21.0
+	golang.org/x/term v0.18.0
 	gopkg.in/ini.v1 v1.67.0
 )
 
@@ -35,7 +34,9 @@ require (
 	github.com/muesli/reflow v0.3.0 // indirect
 	github.com/muesli/termenv v0.15.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
+	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/tools v0.19.0 // indirect
 )

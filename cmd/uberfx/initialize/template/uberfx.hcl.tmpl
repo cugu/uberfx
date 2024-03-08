@@ -22,6 +22,7 @@ deploy uberspace www {
   username = "{{ .UberspaceUser }}"
   password = var.secret.password.value
   address  = "{{ .UberspaceServer }}:22"
+  port     = {{ .UberspacePort }}
   domain   = "{{ .Domain }}"
   env      = {
     "MYSQL_PASSWORD" = service.uberspace_mysql.mysql.password

@@ -19,6 +19,7 @@ type Cmd struct {
 	ModulePath      string `help:"Go module path (e.g. github.com/yourname/yourapp)"`
 	UberspaceServer string `help:"Uberspace server (e.g. stardust or stardust.uberspace.de)"`
 	UberspaceUser   string `help:"Uberspace user"`
+	UberspacePort   string `help:"Uberspace port" default:"8080"`
 	Domain          string `help:"Domain"`
 }
 
@@ -47,6 +48,10 @@ func (c *Cmd) Run() error {
 
 		if c.UberspaceUser == "" {
 			issues = append(issues, "uberspace user cannot be empty")
+		}
+
+		if c.UberspacePort == "" {
+			issues = append(issues, "uberspace port cannot be empty")
 		}
 
 		if c.Domain == "" {
