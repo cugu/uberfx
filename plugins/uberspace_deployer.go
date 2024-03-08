@@ -102,12 +102,8 @@ func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource
 		return nil, fmt.Errorf("supervisorctl update error: %w", err)
 	}
 
-	if err := r.Run(fmt.Sprintf("supervisorctl status %s", u.In.Domain)); err != nil {
-		slog.InfoContext(ctx, "supervisorctl start")
-		if err := r.Run(fmt.Sprintf("supervisorctl start %s", u.In.Domain)); err != nil {
-			return nil, err
-		}
-	} else {
+	slog.InfoContext(ctx, "supervisorctl start")
+	if err := r.Run(fmt.Sprintf("supervisorctl start %s", u.In.Domain)); err != nil {
 		slog.InfoContext(ctx, "supervisorctl restart")
 		if err := r.Run(fmt.Sprintf("supervisorctl restart %s", u.In.Domain)); err != nil {
 			return nil, err

@@ -11,7 +11,7 @@ service uberspace_mysql mysql {
   address  = "{{ .UberspaceServer }}:22"
 }
 
-# A build step, which builds the go binary as a wasm module
+# A build step, which builds the go binary
 build go www {
   path = "."
 }
