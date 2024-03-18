@@ -68,21 +68,24 @@ func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource
 
 	ctx := context.Background()
 
+	slog.InfoContext(ctx, "get current app")
+	out, _ := r.Run(fmt.Sprintf("ls /home/%s/bin/%s-*", u.In.Username, u.In.Domain))
+
 	slog.InfoContext(ctx, "copy app")
 	if err := r.Copy(ctx, u.In.Source, binaryPath); err != nil {
 		return nil, fmt.Errorf("copying server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "chmod server")
-	if err := r.Run(fmt.Sprintf("chmod +x %s", binaryPath)); err != nil {
+	if _, err := r.Run(fmt.Sprintf("chmod +x %s", binaryPath)); err != nil {
 		return nil, fmt.Errorf("chmod server: %w", err)
 	}
 
 	slog.InfoContext(ctx, "uberspace web domain add")
-	_ = r.Run(fmt.Sprintf("uberspace web domain add %s", u.In.Domain))
+	_, _ = r.Run(fmt.Sprintf("uberspace web domain add %s", u.In.Domain))
 
 	slog.InfoContext(ctx, "uberspace web backend set")
-	if err := r.Run(fmt.Sprintf("uberspace web backend set %s --http --port %d", u.In.Domain, u.In.Port)); err != nil {
+	if _, err := r.Run(fmt.Sprintf("uberspace web backend set %s --http --port %d", u.In.Domain, u.In.Port)); err != nil {
 		return nil, fmt.Errorf("setting web backend: %w", err)
 	}
 
@@ -92,20 +95,29 @@ func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource
 	}
 
 	slog.Debug("Reloading service")
-	if err := r.Run("supervisorctl reread"); err != nil {
+	if _, err := r.Run("supervisorctl reread"); err != nil {
 		return nil, fmt.Errorf("supervisorctl reread error: %w", err)
 	}
 
 	slog.Debug("Updating service")
-	if err := r.Run("supervisorctl update"); err != nil {
+	if _, err := r.Run("supervisorctl update"); err != nil {
 		return nil, fmt.Errorf("supervisorctl update error: %w", err)
 	}
 
 	slog.InfoContext(ctx, "supervisorctl start")
-	if err := r.Run(fmt.Sprintf("supervisorctl start %s", u.In.Domain)); err != nil {
+	if _, err := r.Run(fmt.Sprintf("supervisorctl start %s", u.In.Domain)); err != nil {
 		slog.InfoContext(ctx, "supervisorctl restart")
-		if err := r.Run(fmt.Sprintf("supervisorctl restart %s", u.In.Domain)); err != nil {
+		if _, err := r.Run(fmt.Sprintf("supervisorctl restart %s", u.In.Domain)); err != nil {
 			return nil, err
+		}
+	}
+
+	slog.InfoContext(ctx, "delete old app")
+	if out != nil {
+		oldApps := strings.Split(string(out), "\n")
+		for _, oldApp := range oldApps {
+			slog.InfoContext(ctx, fmt.Sprintf("rm %s", oldApp))
+			_, _ = r.Run(fmt.Sprintf("rm %s", oldApp))
 		}
 	}
 

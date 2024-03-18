@@ -3,7 +3,6 @@ package ssh
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 
@@ -45,32 +44,25 @@ func (w WithEnv) apply(s *ssh.Session) error {
 	return nil
 }
 
-func (r *Remote) Run(cmd string, options ...SessionOpts) error {
+func (r *Remote) Run(cmd string, options ...SessionOpts) ([]byte, error) {
 	sshClient, err := ssh.Dial("tcp", r.addr, r.sshConfig)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	session, err := sshClient.NewSession()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer session.Close()
 
 	for _, option := range options {
 		if err := option.apply(session); err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	out, err := session.CombinedOutput(cmd)
-	if err != nil {
-		log.Printf("error running command: %s", out)
-
-		return err
-	}
-
-	return nil
+	return session.CombinedOutput(cmd)
 }
 
 func (r *Remote) Copy(ctx context.Context, src, dest string) error {
