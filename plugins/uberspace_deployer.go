@@ -37,7 +37,7 @@ func serviceIni(u *UberspaceDeployer, binaryPath string) string {
 
 	if len(u.In.Env) > 0 {
 		for k, v := range u.In.Env {
-			envs = append(envs, fmt.Sprintf("%s=%s", k, v))
+			envs = append(envs, fmt.Sprintf("%s=%q", k, v))
 		}
 	}
 
