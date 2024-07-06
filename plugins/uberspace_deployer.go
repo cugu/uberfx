@@ -25,7 +25,8 @@ type UberspaceDeployer struct {
 		Username string `json:"username" hcl:"username"`
 		Password string `json:"-" hcl:"password"`
 		Address  string `json:"address" hcl:"address"`
-		Port     int    `json:"port" hcl:"port"`
+		Port     string `json:"port" hcl:"port"`
+		Args     string `json:"args" hcl:"args"`
 
 		Domain string            `json:"domain" hcl:"domain"`
 		Env    map[string]string `json:"env" hcl:"env,optional"`
@@ -46,9 +47,9 @@ func serviceIni(u *UberspaceDeployer, binaryPath string) string {
 		env = "environment=" + strings.Join(envs, ",") + "\n"
 	}
 
-	iniTemplate := "[program:%s]\ncommand=%s :%d\nstartsecs=60\n%s"
+	iniTemplate := "[program:%s]\ncommand=%s %s\nstartsecs=60\n%s"
 
-	return fmt.Sprintf(iniTemplate, u.In.Domain, binaryPath, u.In.Port, env)
+	return fmt.Sprintf(iniTemplate, u.In.Domain, binaryPath, u.In.Args, env)
 }
 
 func NewUberspaceDeployer(body hcl.Body, ectx *hcl.EvalContext) (deploy.Resource, error) {
