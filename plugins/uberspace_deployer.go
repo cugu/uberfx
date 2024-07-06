@@ -25,7 +25,7 @@ type UberspaceDeployer struct {
 		Username string `json:"username" hcl:"username"`
 		Password string `json:"-" hcl:"password"`
 		Address  string `json:"address" hcl:"address"`
-		Port     string `json:"port" hcl:"port"`
+		Port     int    `json:"port" hcl:"port"`
 		Args     string `json:"args" hcl:"args"`
 
 		Domain string            `json:"domain" hcl:"domain"`
